@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: FinTrack Analytics Service
+  version: 1.0.0
+  description: REST API for retrieving computed financial statistics.
+servers:
+  - url: http://localhost:8081
+paths:
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /v1/users/{userID}/stats:
+    parameters:
+      - $ref: '#/components/parameters/UserID'
+    get:
+      summary: Get cached finance stats
+      responses:
+        '200':
+          description: Finance statistics payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceStats'
+components:
+  parameters:
+    UserID:
+      name: userID
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+    FinanceStats:
+      type: object
+      properties:
+        user_id:
+          type: string
+        total_income:
+          type: number
+          format: double
+        total_expense:
+          type: number
+          format: double
+        balance:
+          type: number
+          format: double
+        average_income:
+          type: number
+          format: double
+        average_expense:
+          type: number
+          format: double
+        expense_by_category:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+        transactions_count:
+          type: integer
+        generated_at:
+          type: string
+          format: date-time
+

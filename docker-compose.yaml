@@ -1,0 +1,118 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: fintrack
+      POSTGRES_PASSWORD: fintrack
+      POSTGRES_DB: fintrack
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.1
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9094:9094"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    ports:
+      - "8082:8080"
+
+  fin-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.fin-api
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      FINTRACK_APP_ENV: docker
+      FINTRACK_POSTGRES_HOST: postgres
+      FINTRACK_REDIS_HOST: redis
+      FINTRACK_FIN_API_HTTP_HOST: 0.0.0.0
+      FINTRACK_FIN_API_GRPC_HOST: 0.0.0.0
+      FINTRACK_FIN_API_GRPC_TARGET: fin-api:9090
+      FINTRACK_KAFKA_BROKERS: kafka:9092
+    volumes:
+      - ./scripts/wait-for.sh:/scripts/wait-for.sh:ro
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    command: >
+      /bin/sh -c "
+        chmod +x /scripts/wait-for.sh &&
+        /scripts/wait-for.sh postgres 5432 &&
+        /scripts/wait-for.sh kafka 9092 &&
+        /app/fin-api
+      "
+
+  fin-analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile.fin-analytics
+    depends_on:
+      - fin-api
+      - redis
+      - kafka
+    environment:
+      FINTRACK_REDIS_HOST: redis
+      FINTRACK_FIN_API_GRPC_TARGET: fin-api:9090
+      FINTRACK_KAFKA_BROKERS: kafka:9092
+      FINTRACK_KAFKA_GROUP_ID: fin-analytics-group
+    volumes:
+      - ./scripts/wait-for.sh:/scripts/wait-for.sh:ro
+    ports:
+      - "8081:8081"
+    command: >
+      /bin/sh -c "
+        chmod +x /scripts/wait-for.sh &&
+        /scripts/wait-for.sh kafka 9092 &&
+        /scripts/wait-for.sh redis 6379 &&
+        /scripts/wait-for.sh fin-api 9090 &&
+        /app/fin-analytics
+      "
+
+volumes:
+  postgres-data:
+  redis-data:
+  kafka-data:
+

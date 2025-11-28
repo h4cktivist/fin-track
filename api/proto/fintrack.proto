@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package fintrack.v1;
+
+option go_package = "fin-track-app/api/proto;proto";
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message Transaction {
+  int64 id = 1;
+  string user_id = 2;
+  double amount = 3;
+  string category = 4;
+  string type = 5;
+  string created_at = 6;
+}
+
+message UserTransactions {
+  repeated Transaction transactions = 1;
+}
+
+service TransactionService {
+  rpc GetUserTransactions(UserRequest) returns (UserTransactions);
+}
+
