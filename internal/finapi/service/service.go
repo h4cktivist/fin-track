@@ -5,19 +5,17 @@ import (
 	"fmt"
 
 	"fin-track-app/internal/domain"
-	"fin-track-app/internal/finapi/repository"
-	"fin-track-app/internal/kafka"
 )
 
 type TransactionService struct {
-	repo     *repository.TransactionRepository
-	producer *kafka.Producer
+	repo      TransactionRepository
+	publisher EventPublisher
 }
 
-func NewTransactionService(repo *repository.TransactionRepository, producer *kafka.Producer) *TransactionService {
+func NewTransactionService(repo TransactionRepository, publisher EventPublisher) *TransactionService {
 	return &TransactionService{
-		repo:     repo,
-		producer: producer,
+		repo:      repo,
+		publisher: publisher,
 	}
 }
 
@@ -65,11 +63,11 @@ func (s *TransactionService) publishUserTransactions(ctx context.Context, userID
 		return fmt.Errorf("list user transactions: %w", err)
 	}
 
-	if err := s.producer.PublishTransactions(ctx, domain.TransactionMessage{
+	if err := s.publisher.PublishTransactions(ctx, domain.TransactionMessage{
 		UserID:       userID,
 		Transactions: all,
 	}); err != nil {
-		return fmt.Errorf("publish kafka message: %w", err)
+		return fmt.Errorf("publish event: %w", err)
 	}
 
 	return nil

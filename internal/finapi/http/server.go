@@ -12,7 +12,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"fin-track-app/internal/domain"
-	"fin-track-app/internal/finapi/repository"
 	"fin-track-app/internal/finapi/service"
 	"fin-track-app/internal/swagger"
 )
@@ -165,7 +164,7 @@ func (s *Server) handleUpdateTransaction(w stdhttp.ResponseWriter, r *stdhttp.Re
 		Type:     txType,
 	})
 	if err != nil {
-		if errors.Is(err, repository.ErrTransactionNotFound) {
+		if errors.Is(err, domain.ErrTransactionNotFound) {
 			httpError(w, stdhttp.StatusNotFound, err.Error())
 			return
 		}
@@ -185,7 +184,7 @@ func (s *Server) handleDeleteTransaction(w stdhttp.ResponseWriter, r *stdhttp.Re
 	}
 
 	if err := s.service.DeleteTransaction(r.Context(), userID, transactionID); err != nil {
-		if errors.Is(err, repository.ErrTransactionNotFound) {
+		if errors.Is(err, domain.ErrTransactionNotFound) {
 			httpError(w, stdhttp.StatusNotFound, err.Error())
 			return
 		}

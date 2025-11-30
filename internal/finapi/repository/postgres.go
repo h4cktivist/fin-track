@@ -11,8 +11,6 @@ import (
 	"fin-track-app/internal/domain"
 )
 
-var ErrTransactionNotFound = errors.New("transaction not found")
-
 type TransactionRepository struct {
 	db *pgxpool.Pool
 }
@@ -79,7 +77,7 @@ func (r *TransactionRepository) UpdateTransaction(ctx context.Context, tx domain
 	row := r.db.QueryRow(ctx, query, tx.Amount, tx.Category, tx.Type, tx.ID, tx.UserID)
 	if err := row.Scan(&tx.CreatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Transaction{}, ErrTransactionNotFound
+			return domain.Transaction{}, domain.ErrTransactionNotFound
 		}
 		return domain.Transaction{}, fmt.Errorf("update transaction: %w", err)
 	}
@@ -96,7 +94,7 @@ func (r *TransactionRepository) DeleteTransaction(ctx context.Context, userID st
 		return fmt.Errorf("delete transaction: %w", err)
 	}
 	if commandTag.RowsAffected() == 0 {
-		return ErrTransactionNotFound
+		return domain.ErrTransactionNotFound
 	}
 	return nil
 }
