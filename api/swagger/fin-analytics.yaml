@@ -68,6 +68,11 @@ components:
           additionalProperties:
             type: number
             format: double
+        income_by_category:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
         transactions_count:
           type: integer
         generated_at:

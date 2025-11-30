@@ -33,6 +33,7 @@ type FinanceStats struct {
 	AverageIncome     float64            `json:"average_income"`
 	AverageExpense    float64            `json:"average_expense"`
 	ExpenseByCategory map[string]float64 `json:"expense_by_category"`
+	IncomeByCategory map[string]float64 `json:"income_by_category"`
 	TransactionsCount int                `json:"transactions_count"`
 	GeneratedAt       time.Time          `json:"generated_at"`
 }
@@ -40,6 +41,7 @@ type FinanceStats struct {
 func CalculateStats(transactions []Transaction) FinanceStats {
 	stats := FinanceStats{
 		ExpenseByCategory: map[string]float64{},
+		IncomeByCategory: map[string]float64{},
 		TransactionsCount: len(transactions),
 		GeneratedAt:       time.Now().UTC(),
 	}
@@ -56,6 +58,7 @@ func CalculateStats(transactions []Transaction) FinanceStats {
 		case TransactionTypeIncome:
 			stats.TotalIncome += tx.Amount
 			incomeSamples = append(incomeSamples, tx.Amount)
+			stats.IncomeByCategory[tx.Category] += tx.Amount
 		case TransactionTypeExpense:
 			stats.TotalExpense += tx.Amount
 			expenseSamples = append(expenseSamples, tx.Amount)
