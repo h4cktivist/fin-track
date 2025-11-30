@@ -51,3 +51,10 @@ curl -X DELETE http://localhost:8080/v1/users/1/transactions/1
 # получить статистику
 curl http://localhost:8081/v1/users/1/stats
 ```
+
+## Тесты
+
+```bash
+go test -cover ./...
+```
+

@@ -1,0 +1,19 @@
+packages:
+  fin-track-app/internal/finanalytics/service:
+    config:
+      dir: internal/finanalytics/service/mocks
+      filename: "mocks.go"
+      pkgname: "mocks"
+      structname: "{{.InterfaceName}}"
+    interfaces:
+      StatsCache:
+      TransactionClient:
+  fin-track-app/internal/finapi/service:
+    config:
+      dir: internal/finapi/service/mocks
+      filename: "mocks.go"
+      pkgname: "mocks"
+      structname: "{{.InterfaceName}}"
+    interfaces:
+      TransactionRepository:
+      EventPublisher:
