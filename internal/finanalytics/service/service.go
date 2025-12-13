@@ -8,6 +8,7 @@ import (
 	"github.com/IBM/sarama"
 
 	"fin-track-app/internal/domain"
+	"fin-track-app/internal/finanalytics/statscalculator"
 )
 
 type Service struct {
@@ -28,7 +29,7 @@ func (s *Service) ProcessKafkaMessage(ctx context.Context, msg *sarama.ConsumerM
 		return fmt.Errorf("decode payload: %w", err)
 	}
 
-	stats := domain.CalculateStats(payload.Transactions)
+	stats := statscalculator.CalculateStats(payload.Transactions)
 	if err := s.cache.Set(ctx, stats); err != nil {
 		return fmt.Errorf("cache stats: %w", err)
 	}
@@ -44,7 +45,7 @@ func (s *Service) GetStats(ctx context.Context, userID string) (domain.FinanceSt
 	if err != nil {
 		return domain.FinanceStats{}, err
 	}
-	stats := domain.CalculateStats(txs)
+	stats := statscalculator.CalculateStats(txs)
 	if err := s.cache.Set(ctx, stats); err != nil {
 		return domain.FinanceStats{}, err
 	}
