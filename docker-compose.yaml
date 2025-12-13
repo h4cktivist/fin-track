@@ -12,6 +12,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
 
   redis:
     image: redis:latest
@@ -19,6 +24,11 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.1
@@ -45,6 +55,12 @@ services:
       - "9094:9094"
     volumes:
       - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
 
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
@@ -62,8 +78,11 @@ services:
       context: .
       dockerfile: Dockerfile.fin-api
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
     environment:
       FINTRACK_APP_ENV: docker
       FINTRACK_POSTGRES_HOST: postgres
@@ -72,44 +91,28 @@ services:
       FINTRACK_FIN_API_GRPC_HOST: 0.0.0.0
       FINTRACK_FIN_API_GRPC_TARGET: fin-api:9090
       FINTRACK_KAFKA_BROKERS: kafka:9092
-    volumes:
-      - ./scripts/wait-for.sh:/scripts/wait-for.sh:ro
     ports:
       - "8080:8080"
       - "9090:9090"
-    command: >
-      /bin/sh -c "
-        chmod +x /scripts/wait-for.sh &&
-        /scripts/wait-for.sh postgres 5432 &&
-        /scripts/wait-for.sh kafka 9092 &&
-        /app/fin-api
-      "
 
   fin-analytics:
     build:
       context: .
       dockerfile: Dockerfile.fin-analytics
     depends_on:
-      - fin-api
-      - redis
-      - kafka
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     environment:
       FINTRACK_REDIS_HOST: redis
       FINTRACK_FIN_API_GRPC_TARGET: fin-api:9090
       FINTRACK_KAFKA_BROKERS: kafka:9092
       FINTRACK_KAFKA_GROUP_ID: fin-analytics-group
-    volumes:
-      - ./scripts/wait-for.sh:/scripts/wait-for.sh:ro
     ports:
       - "8081:8081"
-    command: >
-      /bin/sh -c "
-        chmod +x /scripts/wait-for.sh &&
-        /scripts/wait-for.sh kafka 9092 &&
-        /scripts/wait-for.sh redis 6379 &&
-        /scripts/wait-for.sh fin-api 9090 &&
-        /app/fin-analytics
-      "
 
 volumes:
   postgres-data:
