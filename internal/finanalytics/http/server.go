@@ -4,23 +4,29 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fin-track-app/internal/domain"
 	stdhttp "net/http"
 	"time"
 
+	"github.com/IBM/sarama"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"fin-track-app/internal/finanalytics/service"
 	"fin-track-app/internal/swagger"
 )
 
+type AnalyticsService interface {
+	ProcessKafkaMessage(ctx context.Context, msg *sarama.ConsumerMessage) error
+	GetStats(ctx context.Context, userID string) (domain.FinanceStats, error)
+}
+
 type Server struct {
-	service *service.Service
+	service AnalyticsService
 	router  *chi.Mux
 	server  *stdhttp.Server
 }
 
-func NewServer(service *service.Service) *Server {
+func NewServer(service AnalyticsService) *Server {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)

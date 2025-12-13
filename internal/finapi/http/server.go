@@ -12,17 +12,23 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"fin-track-app/internal/domain"
-	"fin-track-app/internal/finapi/service"
 	"fin-track-app/internal/swagger"
 )
 
+type TransactionService interface {
+	CreateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error)
+	ListTransactions(ctx context.Context, userID string) ([]domain.Transaction, error)
+	UpdateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error)
+	DeleteTransaction(ctx context.Context, userID string, transactionID int64) error
+}
+
 type Server struct {
-	service *service.TransactionService
+	service TransactionService
 	router  *chi.Mux
 	server  *stdhttp.Server
 }
 
-func NewServer(service *service.TransactionService) *Server {
+func NewServer(service TransactionService) *Server {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
