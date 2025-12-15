@@ -5,14 +5,16 @@ import (
 	"fmt"
 
 	"fin-track-app/internal/domain"
+	repo "fin-track-app/internal/finapi/repository"
+	publisher "fin-track-app/internal/kafka"
 )
 
 type TransactionService struct {
-	repo      TransactionRepository
-	publisher EventPublisher
+	repo      repo.TransactionRepository
+	publisher publisher.EventPublisher
 }
 
-func NewTransactionService(repo TransactionRepository, publisher EventPublisher) *TransactionService {
+func NewTransactionService(repo repo.TransactionRepository, publisher publisher.EventPublisher) *TransactionService {
 	return &TransactionService{
 		repo:      repo,
 		publisher: publisher,

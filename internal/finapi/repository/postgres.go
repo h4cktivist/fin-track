@@ -11,15 +11,15 @@ import (
 	"fin-track-app/internal/domain"
 )
 
-type TransactionRepository struct {
+type PostgresTransactionRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewTransactionRepository(db *pgxpool.Pool) *TransactionRepository {
-	return &TransactionRepository{db: db}
+func NewTransactionRepository(db *pgxpool.Pool) *PostgresTransactionRepository {
+	return &PostgresTransactionRepository{db: db}
 }
 
-func (r *TransactionRepository) CreateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error) {
+func (r *PostgresTransactionRepository) CreateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error) {
 	query := `
 		INSERT INTO transactions (user_id, amount, category, type)
 		VALUES ($1, $2, $3, $4)
@@ -34,7 +34,7 @@ func (r *TransactionRepository) CreateTransaction(ctx context.Context, tx domain
 	return tx, nil
 }
 
-func (r *TransactionRepository) ListUserTransactions(ctx context.Context, userID string) ([]domain.Transaction, error) {
+func (r *PostgresTransactionRepository) ListUserTransactions(ctx context.Context, userID string) ([]domain.Transaction, error) {
 	query := `
 		SELECT id, user_id, amount, category, type, created_at
 		FROM transactions
@@ -64,7 +64,7 @@ func (r *TransactionRepository) ListUserTransactions(ctx context.Context, userID
 	return result, nil
 }
 
-func (r *TransactionRepository) UpdateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error) {
+func (r *PostgresTransactionRepository) UpdateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error) {
 	query := `
 		UPDATE transactions
 		SET amount = $1,
@@ -85,7 +85,7 @@ func (r *TransactionRepository) UpdateTransaction(ctx context.Context, tx domain
 	return tx, nil
 }
 
-func (r *TransactionRepository) DeleteTransaction(ctx context.Context, userID string, transactionID int64) error {
+func (r *PostgresTransactionRepository) DeleteTransaction(ctx context.Context, userID string, transactionID int64) error {
 	commandTag, err := r.db.Exec(ctx, `
 		DELETE FROM transactions
 		WHERE id = $1 AND user_id = $2;

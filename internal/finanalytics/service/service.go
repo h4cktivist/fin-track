@@ -8,15 +8,17 @@ import (
 	"github.com/IBM/sarama"
 
 	"fin-track-app/internal/domain"
+	"fin-track-app/internal/finanalytics/cache"
+	client "fin-track-app/internal/finanalytics/grpcclient"
 	"fin-track-app/internal/finanalytics/statscalculator"
 )
 
 type Service struct {
-	cache  StatsCache
-	client TransactionClient
+	cache  cache.StatsCache
+	client client.TransactionClient
 }
 
-func New(cache StatsCache, client TransactionClient) *Service {
+func New(cache cache.StatsCache, client client.TransactionClient) *Service {
 	return &Service{
 		cache:  cache,
 		client: client,
