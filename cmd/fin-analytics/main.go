@@ -2,14 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"fin-track-app/internal/finanalytics/bootstrap"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
-
-	"github.com/IBM/sarama"
 
 	"fin-track-app/internal/config"
 	"fin-track-app/internal/database"
@@ -51,28 +46,6 @@ func main() {
 	defer kafkaConsumer.Close()
 
 	analyticsHTTP := finanalyticshttp.NewServer(svc)
-	httpAddr := fmt.Sprintf("%s:%d", cfg.FinAnalytics.HTTPHost, cfg.FinAnalytics.HTTPPort)
 
-	errCh := make(chan error, 2)
-
-	go func() {
-		log.Printf("fin-analytics HTTP listening on %s", httpAddr)
-		errCh <- analyticsHTTP.Start(ctx, httpAddr)
-	}()
-
-	go func() {
-		log.Println("fin-analytics consumer started")
-		errCh <- kafkaConsumer.Start(ctx)
-	}()
-
-	go func() {
-		stop := make(chan os.Signal, 1)
-		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-		<-stop
-		cancel()
-	}()
-
-	if err := <-errCh; err != nil && err != context.Canceled && err != sarama.ErrClosedConsumerGroup {
-		log.Fatalf("service error: %v", err)
-	}
+	bootstrap.RunAnalyticsApp(ctx, cancel, analyticsHTTP, kafkaConsumer, cfg)
 }
