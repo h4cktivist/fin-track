@@ -13,7 +13,7 @@ const (
 
 type Transaction struct {
 	ID        int64           `json:"id"`
-	UserID    string          `json:"user_id"`
+	UserID    int             `json:"user_id"`
 	Amount    float64         `json:"amount"`
 	Category  string          `json:"category"`
 	Type      TransactionType `json:"type"`
@@ -21,12 +21,12 @@ type Transaction struct {
 }
 
 type TransactionMessage struct {
-	UserID       string        `json:"user_id"`
+	UserID       int           `json:"user_id"`
 	Transactions []Transaction `json:"transactions"`
 }
 
 type FinanceStats struct {
-	UserID            string             `json:"user_id"`
+	UserID            int                `json:"user_id"`
 	TotalIncome       float64            `json:"total_income"`
 	TotalExpense      float64            `json:"total_expense"`
 	Balance           float64            `json:"balance"`

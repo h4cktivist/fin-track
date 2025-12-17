@@ -34,7 +34,7 @@ func (s *TransactionService) CreateTransaction(ctx context.Context, tx domain.Tr
 	return created, nil
 }
 
-func (s *TransactionService) ListTransactions(ctx context.Context, userID string) ([]domain.Transaction, error) {
+func (s *TransactionService) ListTransactions(ctx context.Context, userID int) ([]domain.Transaction, error) {
 	return s.repo.ListUserTransactions(ctx, userID)
 }
 
@@ -51,7 +51,7 @@ func (s *TransactionService) UpdateTransaction(ctx context.Context, tx domain.Tr
 	return updated, nil
 }
 
-func (s *TransactionService) DeleteTransaction(ctx context.Context, userID string, transactionID int64) error {
+func (s *TransactionService) DeleteTransaction(ctx context.Context, userID int, transactionID int64) error {
 	if err := s.repo.DeleteTransaction(ctx, userID, transactionID); err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (s *TransactionService) DeleteTransaction(ctx context.Context, userID strin
 	return s.publishUserTransactions(ctx, userID)
 }
 
-func (s *TransactionService) publishUserTransactions(ctx context.Context, userID string) error {
+func (s *TransactionService) publishUserTransactions(ctx context.Context, userID int) error {
 	all, err := s.repo.ListUserTransactions(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("list user transactions: %w", err)

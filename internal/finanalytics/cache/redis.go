@@ -20,11 +20,11 @@ func New(client *redis.Client, ttl time.Duration) *Cache {
 	return &Cache{client: client, ttl: ttl}
 }
 
-func (c *Cache) key(userID string) string {
-	return fmt.Sprintf("fintrack:stats:%s", userID)
+func (c *Cache) key(userID int) string {
+	return fmt.Sprintf("fintrack:stats:%d", userID)
 }
 
-func (c *Cache) Get(ctx context.Context, userID string) (*domain.FinanceStats, error) {
+func (c *Cache) Get(ctx context.Context, userID int) (*domain.FinanceStats, error) {
 	data, err := c.client.Get(ctx, c.key(userID)).Bytes()
 	if err == redis.Nil {
 		return nil, nil

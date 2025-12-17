@@ -43,7 +43,7 @@ func (s *Server) Stop() {
 }
 
 func (s *Server) GetUserTransactions(ctx context.Context, req *proto.UserRequest) (*proto.UserTransactions, error) {
-	items, err := s.service.ListTransactions(ctx, req.GetUserId())
+	items, err := s.service.ListTransactions(ctx, int(req.GetUserId()))
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func convertDomainTransactions(items []domain.Transaction) []*proto.Transaction 
 	for _, tx := range items {
 		result = append(result, &proto.Transaction{
 			Id:        tx.ID,
-			UserId:    tx.UserID,
+			UserId:    int64(tx.UserID),
 			Amount:    tx.Amount,
 			Category:  tx.Category,
 			Type:      string(tx.Type),

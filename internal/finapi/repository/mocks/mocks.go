@@ -105,7 +105,7 @@ func (_c *TransactionRepository_CreateTransaction_Call) RunAndReturn(run func(ct
 }
 
 // DeleteTransaction provides a mock function for the type TransactionRepository
-func (_mock *TransactionRepository) DeleteTransaction(ctx context.Context, userID string, transactionID int64) error {
+func (_mock *TransactionRepository) DeleteTransaction(ctx context.Context, userID int, transactionID int64) error {
 	ret := _mock.Called(ctx, userID, transactionID)
 
 	if len(ret) == 0 {
@@ -113,7 +113,7 @@ func (_mock *TransactionRepository) DeleteTransaction(ctx context.Context, userI
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, int64) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int, int64) error); ok {
 		r0 = returnFunc(ctx, userID, transactionID)
 	} else {
 		r0 = ret.Error(0)
@@ -128,21 +128,21 @@ type TransactionRepository_DeleteTransaction_Call struct {
 
 // DeleteTransaction is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID string
+//   - userID int
 //   - transactionID int64
 func (_e *TransactionRepository_Expecter) DeleteTransaction(ctx interface{}, userID interface{}, transactionID interface{}) *TransactionRepository_DeleteTransaction_Call {
 	return &TransactionRepository_DeleteTransaction_Call{Call: _e.mock.On("DeleteTransaction", ctx, userID, transactionID)}
 }
 
-func (_c *TransactionRepository_DeleteTransaction_Call) Run(run func(ctx context.Context, userID string, transactionID int64)) *TransactionRepository_DeleteTransaction_Call {
+func (_c *TransactionRepository_DeleteTransaction_Call) Run(run func(ctx context.Context, userID int, transactionID int64)) *TransactionRepository_DeleteTransaction_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 int
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(int)
 		}
 		var arg2 int64
 		if args[2] != nil {
@@ -162,13 +162,13 @@ func (_c *TransactionRepository_DeleteTransaction_Call) Return(err error) *Trans
 	return _c
 }
 
-func (_c *TransactionRepository_DeleteTransaction_Call) RunAndReturn(run func(ctx context.Context, userID string, transactionID int64) error) *TransactionRepository_DeleteTransaction_Call {
+func (_c *TransactionRepository_DeleteTransaction_Call) RunAndReturn(run func(ctx context.Context, userID int, transactionID int64) error) *TransactionRepository_DeleteTransaction_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListUserTransactions provides a mock function for the type TransactionRepository
-func (_mock *TransactionRepository) ListUserTransactions(ctx context.Context, userID string) ([]domain.Transaction, error) {
+func (_mock *TransactionRepository) ListUserTransactions(ctx context.Context, userID int) ([]domain.Transaction, error) {
 	ret := _mock.Called(ctx, userID)
 
 	if len(ret) == 0 {
@@ -177,17 +177,17 @@ func (_mock *TransactionRepository) ListUserTransactions(ctx context.Context, us
 
 	var r0 []domain.Transaction
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) ([]domain.Transaction, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) ([]domain.Transaction, error)); ok {
 		return returnFunc(ctx, userID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) []domain.Transaction); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) []domain.Transaction); ok {
 		r0 = returnFunc(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Transaction)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = returnFunc(ctx, userID)
 	} else {
 		r1 = ret.Error(1)
@@ -202,20 +202,20 @@ type TransactionRepository_ListUserTransactions_Call struct {
 
 // ListUserTransactions is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID string
+//   - userID int
 func (_e *TransactionRepository_Expecter) ListUserTransactions(ctx interface{}, userID interface{}) *TransactionRepository_ListUserTransactions_Call {
 	return &TransactionRepository_ListUserTransactions_Call{Call: _e.mock.On("ListUserTransactions", ctx, userID)}
 }
 
-func (_c *TransactionRepository_ListUserTransactions_Call) Run(run func(ctx context.Context, userID string)) *TransactionRepository_ListUserTransactions_Call {
+func (_c *TransactionRepository_ListUserTransactions_Call) Run(run func(ctx context.Context, userID int)) *TransactionRepository_ListUserTransactions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 int
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(int)
 		}
 		run(
 			arg0,
@@ -230,7 +230,7 @@ func (_c *TransactionRepository_ListUserTransactions_Call) Return(transactions [
 	return _c
 }
 
-func (_c *TransactionRepository_ListUserTransactions_Call) RunAndReturn(run func(ctx context.Context, userID string) ([]domain.Transaction, error)) *TransactionRepository_ListUserTransactions_Call {
+func (_c *TransactionRepository_ListUserTransactions_Call) RunAndReturn(run func(ctx context.Context, userID int) ([]domain.Transaction, error)) *TransactionRepository_ListUserTransactions_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -297,90 +297,6 @@ func (_c *TransactionRepository_UpdateTransaction_Call) Return(transaction domai
 }
 
 func (_c *TransactionRepository_UpdateTransaction_Call) RunAndReturn(run func(ctx context.Context, tx domain.Transaction) (domain.Transaction, error)) *TransactionRepository_UpdateTransaction_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// NewEventPublisher creates a new instance of EventPublisher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-// The first argument is typically a *testing.T value.
-func NewEventPublisher(t interface {
-	mock.TestingT
-	Cleanup(func())
-}) *EventPublisher {
-	mock := &EventPublisher{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
-}
-
-// EventPublisher is an autogenerated mock type for the EventPublisher type
-type EventPublisher struct {
-	mock.Mock
-}
-
-type EventPublisher_Expecter struct {
-	mock *mock.Mock
-}
-
-func (_m *EventPublisher) EXPECT() *EventPublisher_Expecter {
-	return &EventPublisher_Expecter{mock: &_m.Mock}
-}
-
-// PublishTransactions provides a mock function for the type EventPublisher
-func (_mock *EventPublisher) PublishTransactions(ctx context.Context, msg domain.TransactionMessage) error {
-	ret := _mock.Called(ctx, msg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for PublishTransactions")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.TransactionMessage) error); ok {
-		r0 = returnFunc(ctx, msg)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// EventPublisher_PublishTransactions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PublishTransactions'
-type EventPublisher_PublishTransactions_Call struct {
-	*mock.Call
-}
-
-// PublishTransactions is a helper method to define mock.On call
-//   - ctx context.Context
-//   - msg domain.TransactionMessage
-func (_e *EventPublisher_Expecter) PublishTransactions(ctx interface{}, msg interface{}) *EventPublisher_PublishTransactions_Call {
-	return &EventPublisher_PublishTransactions_Call{Call: _e.mock.On("PublishTransactions", ctx, msg)}
-}
-
-func (_c *EventPublisher_PublishTransactions_Call) Run(run func(ctx context.Context, msg domain.TransactionMessage)) *EventPublisher_PublishTransactions_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 domain.TransactionMessage
-		if args[1] != nil {
-			arg1 = args[1].(domain.TransactionMessage)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *EventPublisher_PublishTransactions_Call) Return(err error) *EventPublisher_PublishTransactions_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *EventPublisher_PublishTransactions_Call) RunAndReturn(run func(ctx context.Context, msg domain.TransactionMessage) error) *EventPublisher_PublishTransactions_Call {
 	_c.Call.Return(run)
 	return _c
 }

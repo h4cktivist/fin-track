@@ -11,26 +11,27 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"fin-track-app/internal/domain"
+	cachemocks "fin-track-app/internal/finanalytics/cache/mocks"
+	grpcmocks "fin-track-app/internal/finanalytics/grpcclient/mocks"
 	"fin-track-app/internal/finanalytics/service"
-	"fin-track-app/internal/finanalytics/service/mocks"
 )
 
 type ServiceTestSuite struct {
 	suite.Suite
-	mockCache  *mocks.StatsCache
-	mockClient *mocks.TransactionClient
+	mockCache  *cachemocks.StatsCache
+	mockClient *grpcmocks.TransactionClient
 	service    *service.Service
 }
 
 func (s *ServiceTestSuite) SetupTest() {
-	s.mockCache = mocks.NewStatsCache(s.T())
-	s.mockClient = mocks.NewTransactionClient(s.T())
+	s.mockCache = cachemocks.NewStatsCache(s.T())
+	s.mockClient = grpcmocks.NewTransactionClient(s.T())
 	s.service = service.New(s.mockCache, s.mockClient)
 }
 
 func (s *ServiceTestSuite) TestProcessKafkaMessageSuccess() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	txs := []domain.Transaction{
 		{ID: 1, UserID: userID, Amount: 100, Type: domain.TransactionTypeIncome, Category: "Salary"},
 		{ID: 2, UserID: userID, Amount: 50, Type: domain.TransactionTypeExpense, Category: "Food"},
@@ -55,7 +56,7 @@ func (s *ServiceTestSuite) TestProcessKafkaMessageSuccess() {
 
 func (s *ServiceTestSuite) TestGetStatsCached() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	cachedStats := &domain.FinanceStats{
 		UserID:      userID,
 		TotalIncome: 1000,
@@ -70,7 +71,7 @@ func (s *ServiceTestSuite) TestGetStatsCached() {
 
 func (s *ServiceTestSuite) TestGetStatsNotCachedSuccess() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	txs := []domain.Transaction{
 		{ID: 1, UserID: userID, Amount: 200, Type: domain.TransactionTypeIncome},
 	}
@@ -88,7 +89,7 @@ func (s *ServiceTestSuite) TestGetStatsNotCachedSuccess() {
 
 func (s *ServiceTestSuite) TestGetStatsFetchError() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 
 	s.mockCache.On("Get", ctx, userID).Return(nil, errors.New("not found"))
 	s.mockClient.On("FetchTransactions", ctx, userID).Return(nil, errors.New("fetch error"))

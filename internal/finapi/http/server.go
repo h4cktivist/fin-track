@@ -17,9 +17,9 @@ import (
 
 type TransactionService interface {
 	CreateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error)
-	ListTransactions(ctx context.Context, userID string) ([]domain.Transaction, error)
+	ListTransactions(ctx context.Context, userID int) ([]domain.Transaction, error)
 	UpdateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error)
-	DeleteTransaction(ctx context.Context, userID string, transactionID int64) error
+	DeleteTransaction(ctx context.Context, userID int, transactionID int64) error
 }
 
 type Server struct {
@@ -101,7 +101,12 @@ type transactionRequest struct {
 }
 
 func (s *Server) handleCreateTransaction(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID, err := strconv.Atoi(chi.URLParam(r, "userID"))
+	if err != nil {
+		httpError(w, stdhttp.StatusBadRequest, "invalid user_id")
+		return
+	}
+
 	var req transactionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		httpError(w, stdhttp.StatusBadRequest, "invalid payload")
@@ -131,7 +136,11 @@ func (s *Server) handleCreateTransaction(w stdhttp.ResponseWriter, r *stdhttp.Re
 }
 
 func (s *Server) handleListTransactions(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID, err := strconv.Atoi(chi.URLParam(r, "userID"))
+	if err != nil {
+		httpError(w, stdhttp.StatusBadRequest, "invalid user_id")
+		return
+	}
 
 	items, err := s.service.ListTransactions(r.Context(), userID)
 	if err != nil {
@@ -143,7 +152,12 @@ func (s *Server) handleListTransactions(w stdhttp.ResponseWriter, r *stdhttp.Req
 }
 
 func (s *Server) handleUpdateTransaction(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID, err := strconv.Atoi(chi.URLParam(r, "userID"))
+	if err != nil {
+		httpError(w, stdhttp.StatusBadRequest, "invalid user_id")
+		return
+	}
+
 	transactionID, err := parseTransactionID(r)
 	if err != nil {
 		httpError(w, stdhttp.StatusBadRequest, "invalid transaction id")
@@ -182,7 +196,12 @@ func (s *Server) handleUpdateTransaction(w stdhttp.ResponseWriter, r *stdhttp.Re
 }
 
 func (s *Server) handleDeleteTransaction(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID, err := strconv.Atoi(chi.URLParam(r, "userID"))
+	if err != nil {
+		httpError(w, stdhttp.StatusBadRequest, "invalid user_id")
+		return
+	}
+
 	transactionID, err := parseTransactionID(r)
 	if err != nil {
 		httpError(w, stdhttp.StatusBadRequest, "invalid transaction id")

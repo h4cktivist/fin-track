@@ -14,12 +14,13 @@ fin_analytics:
   http_port: 8081
 
 postgres:
-  host: postgres
-  port: 5432
-  user: fintrack
-  password: fintrack
-  dbname: fintrack
-  sslmode: disable
+  shards:
+    - name: "shard0"
+      conn_url: "postgres://fintrack:fintrack@postgres-shard0:5432/fintrack?sslmode=disable"
+      weight: 1
+    - name: "shard1"
+      conn_url: "postgres://fintrack:fintrack@postgres-shard1:5432/fintrack?sslmode=disable"
+      weight: 1
 
 redis:
   host: redis
@@ -30,4 +31,3 @@ kafka:
   brokers:
     - kafka:9092
   group_id: fin-analytics-group
-

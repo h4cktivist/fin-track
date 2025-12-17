@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fin-track-app/internal/domain"
 	stdhttp "net/http"
+	"strconv"
 	"time"
 
 	"github.com/IBM/sarama"
@@ -17,7 +18,7 @@ import (
 
 type AnalyticsService interface {
 	ProcessKafkaMessage(ctx context.Context, msg *sarama.ConsumerMessage) error
-	GetStats(ctx context.Context, userID string) (domain.FinanceStats, error)
+	GetStats(ctx context.Context, userID int) (domain.FinanceStats, error)
 }
 
 type Server struct {
@@ -85,7 +86,11 @@ func (s *Server) Stop(ctx context.Context) error {
 }
 
 func (s *Server) handleGetStats(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID, err := strconv.Atoi(chi.URLParam(r, "userID"))
+	if err != nil {
+		writeJSON(w, stdhttp.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
 
 	stats, err := s.service.GetStats(r.Context(), userID)
 	if err != nil {

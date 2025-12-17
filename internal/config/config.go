@@ -31,25 +31,14 @@ type Config struct {
 	Kafka    KafkaConfig    `mapstructure:"kafka"`
 }
 
-type PostgresConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	DBName   string `mapstructure:"dbname"`
-	SSLMode  string `mapstructure:"sslmode"`
+type PostgresShardConfig struct {
+	Name    string `mapstructure:"name"`
+	ConnURL string `mapstructure:"conn_url"`
+	Weight  int    `mapstructure:"weight"`
 }
 
-func (p PostgresConfig) ConnString() string {
-	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
-		p.User,
-		p.Password,
-		p.Host,
-		p.Port,
-		p.DBName,
-		p.SSLMode,
-	)
+type PostgresConfig struct {
+	Shards []PostgresShardConfig `mapstructure:"shards"`
 }
 
 type RedisConfig struct {

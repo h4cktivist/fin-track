@@ -19,7 +19,7 @@ func (s *CalculatorTestSuite) SetupTest() {
 	s.transactions = []domain.Transaction{
 		{
 			ID:        1,
-			UserID:    "user-123",
+			UserID:    1,
 			Amount:    1000.0,
 			Type:      domain.TransactionTypeIncome,
 			Category:  "salary",
@@ -27,7 +27,7 @@ func (s *CalculatorTestSuite) SetupTest() {
 		},
 		{
 			ID:        2,
-			UserID:    "user-123",
+			UserID:    1,
 			Amount:    500.0,
 			Type:      domain.TransactionTypeIncome,
 			Category:  "bonus",
@@ -35,7 +35,7 @@ func (s *CalculatorTestSuite) SetupTest() {
 		},
 		{
 			ID:        3,
-			UserID:    "user-123",
+			UserID:    1,
 			Amount:    300.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "food",
@@ -43,7 +43,7 @@ func (s *CalculatorTestSuite) SetupTest() {
 		},
 		{
 			ID:        4,
-			UserID:    "user-123",
+			UserID:    1,
 			Amount:    200.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "transport",
@@ -51,7 +51,7 @@ func (s *CalculatorTestSuite) SetupTest() {
 		},
 		{
 			ID:        5,
-			UserID:    "user-123",
+			UserID:    1,
 			Amount:    150.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "food",
@@ -65,7 +65,7 @@ func (s *CalculatorTestSuite) TestCalculateStats_EmptyTransactions() {
 
 	stats := CalculateStats(emptyTransactions)
 
-	assert.Equal(s.T(), "", stats.UserID)
+	assert.Equal(s.T(), 0, stats.UserID)
 	assert.Equal(s.T(), 0, stats.TransactionsCount)
 	assert.Equal(s.T(), 0.0, stats.TotalIncome)
 	assert.Equal(s.T(), 0.0, stats.TotalExpense)
@@ -80,7 +80,7 @@ func (s *CalculatorTestSuite) TestCalculateStats_EmptyTransactions() {
 func (s *CalculatorTestSuite) TestCalculateStats_MixedTransactions() {
 	stats := CalculateStats(s.transactions)
 
-	assert.Equal(s.T(), "user-123", stats.UserID)
+	assert.Equal(s.T(), 1, stats.UserID)
 	assert.Equal(s.T(), 5, stats.TransactionsCount)
 	assert.Equal(s.T(), 1500.0, stats.TotalIncome)
 	assert.Equal(s.T(), 650.0, stats.TotalExpense)
@@ -103,7 +103,7 @@ func (s *CalculatorTestSuite) TestCalculateStats_OnlyIncome() {
 	incomeTransactions := []domain.Transaction{
 		{
 			ID:        1,
-			UserID:    "user-456",
+			UserID:    2,
 			Amount:    2000.0,
 			Type:      domain.TransactionTypeIncome,
 			Category:  "salary",
@@ -111,7 +111,7 @@ func (s *CalculatorTestSuite) TestCalculateStats_OnlyIncome() {
 		},
 		{
 			ID:        2,
-			UserID:    "user-456",
+			UserID:    2,
 			Amount:    1000.0,
 			Type:      domain.TransactionTypeIncome,
 			Category:  "investment",
@@ -121,7 +121,7 @@ func (s *CalculatorTestSuite) TestCalculateStats_OnlyIncome() {
 
 	stats := CalculateStats(incomeTransactions)
 
-	assert.Equal(s.T(), "user-456", stats.UserID)
+	assert.Equal(s.T(), 2, stats.UserID)
 	assert.Equal(s.T(), 2, stats.TransactionsCount)
 	assert.Equal(s.T(), 3000.0, stats.TotalIncome)
 	assert.Equal(s.T(), 0.0, stats.TotalExpense)
@@ -137,7 +137,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsOnlyExpense() {
 	expenseTransactions := []domain.Transaction{
 		{
 			ID:        1,
-			UserID:    "user-789",
+			UserID:    3,
 			Amount:    500.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "rent",
@@ -145,7 +145,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsOnlyExpense() {
 		},
 		{
 			ID:        2,
-			UserID:    "user-789",
+			UserID:    3,
 			Amount:    300.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "utilities",
@@ -155,7 +155,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsOnlyExpense() {
 
 	stats := CalculateStats(expenseTransactions)
 
-	assert.Equal(s.T(), "user-789", stats.UserID)
+	assert.Equal(s.T(), 3, stats.UserID)
 	assert.Equal(s.T(), 2, stats.TransactionsCount)
 	assert.Equal(s.T(), 0.0, stats.TotalIncome)
 	assert.Equal(s.T(), 800.0, stats.TotalExpense)
@@ -171,7 +171,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsSameCategoryMultipleTransactions
 	transactions := []domain.Transaction{
 		{
 			ID:        1,
-			UserID:    "user-999",
+			UserID:    4,
 			Amount:    100.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "food",
@@ -179,7 +179,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsSameCategoryMultipleTransactions
 		},
 		{
 			ID:        2,
-			UserID:    "user-999",
+			UserID:    4,
 			Amount:    50.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "food",
@@ -187,7 +187,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsSameCategoryMultipleTransactions
 		},
 		{
 			ID:        3,
-			UserID:    "user-999",
+			UserID:    4,
 			Amount:    30.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "food",
@@ -206,7 +206,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsDifferentUsers() {
 	transactions := []domain.Transaction{
 		{
 			ID:        1,
-			UserID:    "user-first",
+			UserID:    1,
 			Amount:    100.0,
 			Type:      domain.TransactionTypeIncome,
 			Category:  "salary",
@@ -214,7 +214,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsDifferentUsers() {
 		},
 		{
 			ID:        2,
-			UserID:    "user-second",
+			UserID:    2,
 			Amount:    200.0,
 			Type:      domain.TransactionTypeIncome,
 			Category:  "bonus",
@@ -224,14 +224,14 @@ func (s *CalculatorTestSuite) TestCalculateStatsDifferentUsers() {
 
 	stats := CalculateStats(transactions)
 
-	assert.Equal(s.T(), "user-first", stats.UserID)
+	assert.Equal(s.T(), 1, stats.UserID)
 }
 
 func (s *CalculatorTestSuite) TestCalculateStatsZeroAmounts() {
 	transactions := []domain.Transaction{
 		{
 			ID:        1,
-			UserID:    "user-zero",
+			UserID:    1,
 			Amount:    0.0,
 			Type:      domain.TransactionTypeIncome,
 			Category:  "gift",
@@ -239,7 +239,7 @@ func (s *CalculatorTestSuite) TestCalculateStatsZeroAmounts() {
 		},
 		{
 			ID:        2,
-			UserID:    "user-zero",
+			UserID:    1,
 			Amount:    0.0,
 			Type:      domain.TransactionTypeExpense,
 			Category:  "food",

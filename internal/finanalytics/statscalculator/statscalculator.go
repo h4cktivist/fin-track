@@ -18,7 +18,7 @@ func CalculateStats(transactions []domain.Transaction) domain.FinanceStats {
 	var expenseSamples []float64
 
 	for _, tx := range transactions {
-		if stats.UserID == "" {
+		if stats.UserID == 0 {
 			stats.UserID = tx.UserID
 		}
 

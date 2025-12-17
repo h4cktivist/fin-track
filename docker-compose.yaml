@@ -1,8 +1,9 @@
 version: "3.8"
 
 services:
-  postgres:
+  postgres-shard0:
     image: postgres:15
+    container_name: postgres-shard0
     environment:
       POSTGRES_USER: fintrack
       POSTGRES_PASSWORD: fintrack
@@ -10,13 +11,35 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-shard0-data:/var/lib/postgresql/data
       - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      test: [ "CMD-SHELL", "pg_isready -U fintrack" ]
       interval: 5s
       timeout: 3s
       retries: 3
+    networks:
+      - fin-track-network
+
+  postgres-shard1:
+    image: postgres:15
+    container_name: postgres-shard1
+    environment:
+      POSTGRES_USER: fintrack
+      POSTGRES_PASSWORD: fintrack
+      POSTGRES_DB: fintrack
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-shard1-data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U fintrack" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - fin-track-network
 
   redis:
     image: redis:latest
@@ -29,12 +52,16 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
+    networks:
+      - fin-track-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - fin-track-network
 
   kafka:
     image: confluentinc/cp-kafka:7.5.1
@@ -61,6 +88,8 @@ services:
       interval: 5s
       timeout: 10s
       retries: 10
+    networks:
+      - fin-track-network
 
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
@@ -72,40 +101,47 @@ services:
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     ports:
       - "8082:8080"
+    networks:
+      - fin-track-network
 
   fin-api:
     build:
       context: .
       dockerfile: Dockerfile.fin-api
     depends_on:
-      postgres:
+      postgres-shard0:
+        condition: service_healthy
+      postgres-shard1:
         condition: service_healthy
       kafka:
         condition: service_healthy
-
     environment:
       FINTRACK_APP_ENV: docker
-      FINTRACK_POSTGRES_HOST: postgres
-      FINTRACK_REDIS_HOST: redis
       FINTRACK_FIN_API_HTTP_HOST: 0.0.0.0
       FINTRACK_FIN_API_GRPC_HOST: 0.0.0.0
       FINTRACK_FIN_API_GRPC_TARGET: fin-api:9090
       FINTRACK_KAFKA_BROKERS: kafka:9092
+      FINTRACK_POSTGRES_SHARD0_URL: "postgres://fintrack:fintrack@postgres-shard0:5432/fintrack?sslmode=disable"
+      FINTRACK_POSTGRES_SHARD1_URL: "postgres://fintrack:fintrack@postgres-shard1:5432/fintrack?sslmode=disable"
     ports:
       - "8080:8080"
       - "9090:9090"
+    volumes:
+      - ./config:/app/config:ro
+    networks:
+      - fin-track-network
 
   fin-analytics:
     build:
       context: .
       dockerfile: Dockerfile.fin-analytics
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      fin-api:
+        condition: service_started
     environment:
       FINTRACK_REDIS_HOST: redis
       FINTRACK_FIN_API_GRPC_TARGET: fin-api:9090
@@ -113,9 +149,17 @@ services:
       FINTRACK_KAFKA_GROUP_ID: fin-analytics-group
     ports:
       - "8081:8081"
+    volumes:
+      - ./config:/app/config:ro
+    networks:
+      - fin-track-network
 
 volumes:
-  postgres-data:
+  postgres-shard0-data:
+  postgres-shard1-data:
   redis-data:
   kafka-data:
 
+networks:
+  fin-track-network:
+    driver: bridge

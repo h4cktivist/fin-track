@@ -38,7 +38,7 @@ func (s *Service) ProcessKafkaMessage(ctx context.Context, msg *sarama.ConsumerM
 	return nil
 }
 
-func (s *Service) GetStats(ctx context.Context, userID string) (domain.FinanceStats, error) {
+func (s *Service) GetStats(ctx context.Context, userID int) (domain.FinanceStats, error) {
 	if cached, err := s.cache.Get(ctx, userID); err == nil && cached != nil {
 		return *cached, nil
 	}

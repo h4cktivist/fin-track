@@ -9,26 +9,27 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"fin-track-app/internal/domain"
+	repomocks "fin-track-app/internal/finapi/repository/mocks"
 	"fin-track-app/internal/finapi/service"
-	"fin-track-app/internal/finapi/service/mocks"
+	kafkamocks "fin-track-app/internal/kafka/mocks"
 )
 
 type TransactionServiceTestSuite struct {
 	suite.Suite
-	mockRepo      *mocks.TransactionRepository
-	mockPublisher *mocks.EventPublisher
+	mockRepo      *repomocks.TransactionRepository
+	mockPublisher *kafkamocks.EventPublisher
 	service       *service.TransactionService
 }
 
 func (s *TransactionServiceTestSuite) SetupTest() {
-	s.mockRepo = mocks.NewTransactionRepository(s.T())
-	s.mockPublisher = mocks.NewEventPublisher(s.T())
+	s.mockRepo = repomocks.NewTransactionRepository(s.T())
+	s.mockPublisher = kafkamocks.NewEventPublisher(s.T())
 	s.service = service.NewTransactionService(s.mockRepo, s.mockPublisher)
 }
 
 func (s *TransactionServiceTestSuite) TestCreateTransactionSuccess() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	tx := domain.Transaction{
 		UserID:   userID,
 		Amount:   100,
@@ -51,7 +52,7 @@ func (s *TransactionServiceTestSuite) TestCreateTransactionSuccess() {
 
 func (s *TransactionServiceTestSuite) TestCreateTransactionRepoError() {
 	ctx := context.Background()
-	tx := domain.Transaction{UserID: "user-123"}
+	tx := domain.Transaction{UserID: 1}
 
 	s.mockRepo.On("CreateTransaction", ctx, tx).Return(domain.Transaction{}, errors.New("repo error"))
 
@@ -62,7 +63,7 @@ func (s *TransactionServiceTestSuite) TestCreateTransactionRepoError() {
 
 func (s *TransactionServiceTestSuite) TestListTransactionsSuccess() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	txs := []domain.Transaction{{ID: 1, UserID: userID}}
 
 	s.mockRepo.On("ListUserTransactions", ctx, userID).Return(txs, nil)
@@ -74,7 +75,7 @@ func (s *TransactionServiceTestSuite) TestListTransactionsSuccess() {
 
 func (s *TransactionServiceTestSuite) TestUpdateTransactionSuccess() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	tx := domain.Transaction{ID: 1, UserID: userID, Amount: 150}
 	updatedTx := tx
 
@@ -89,7 +90,7 @@ func (s *TransactionServiceTestSuite) TestUpdateTransactionSuccess() {
 
 func (s *TransactionServiceTestSuite) TestUpdateTransactionRepoError() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	tx := domain.Transaction{ID: 999, UserID: userID, Amount: 150}
 
 	s.mockRepo.On("UpdateTransaction", ctx, tx).Return(domain.Transaction{}, errors.New("transaction not found"))
@@ -101,7 +102,7 @@ func (s *TransactionServiceTestSuite) TestUpdateTransactionRepoError() {
 
 func (s *TransactionServiceTestSuite) TestDeleteTransactionSuccess() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	txID := int64(1)
 
 	s.mockRepo.On("DeleteTransaction", ctx, userID, txID).Return(nil)
@@ -114,7 +115,7 @@ func (s *TransactionServiceTestSuite) TestDeleteTransactionSuccess() {
 
 func (s *TransactionServiceTestSuite) TestDeleteTransactionRepoError() {
 	ctx := context.Background()
-	userID := "user-123"
+	userID := 1
 	txID := int64(999)
 
 	s.mockRepo.On("DeleteTransaction", ctx, userID, txID).Return(errors.New("transaction not found"))

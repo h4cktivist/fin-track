@@ -7,6 +7,6 @@ import (
 )
 
 type StatsCache interface {
-	Get(ctx context.Context, userID string) (*domain.FinanceStats, error)
+	Get(ctx context.Context, userID int) (*domain.FinanceStats, error)
 	Set(ctx context.Context, stats domain.FinanceStats) error
 }

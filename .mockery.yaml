@@ -1,19 +1,36 @@
 packages:
-  fin-track-app/internal/finanalytics/service:
-    config:
-      dir: internal/finanalytics/service/mocks
-      filename: "mocks.go"
-      pkgname: "mocks"
-      structname: "{{.InterfaceName}}"
+  fin-track-app/internal/finanalytics/cache:
     interfaces:
       StatsCache:
+        config:
+          dir: "{{.InterfaceDir}}/mocks"
+          filename: "mocks.go"
+          pkgname: "mocks"
+          structname: "{{.InterfaceName}}"
+
+  fin-track-app/internal/finanalytics/grpcclient:
+    interfaces:
       TransactionClient:
-  fin-track-app/internal/finapi/service:
-    config:
-      dir: internal/finapi/service/mocks
-      filename: "mocks.go"
-      pkgname: "mocks"
-      structname: "{{.InterfaceName}}"
+        config:
+          dir: "{{.InterfaceDir}}/mocks"
+          filename: "mocks.go"
+          pkgname: "mocks"
+          structname: "{{.InterfaceName}}"
+
+  fin-track-app/internal/finapi/repository:
     interfaces:
       TransactionRepository:
+        config:
+          dir: "{{.InterfaceDir}}/mocks"
+          filename: "mocks.go"
+          pkgname: "mocks"
+          structname: "{{.InterfaceName}}"
+
+  fin-track-app/internal/kafka:
+    interfaces:
       EventPublisher:
+        config:
+          dir: "{{.InterfaceDir}}/mocks"
+          filename: "mocks.go"
+          pkgname: "mocks"
+          structname: "{{.InterfaceName}}"

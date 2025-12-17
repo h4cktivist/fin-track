@@ -3,30 +3,32 @@ package repository
 import (
 	"context"
 	"errors"
+	"fin-track-app/internal/database"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"fin-track-app/internal/domain"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type PostgresTransactionRepository struct {
-	db *pgxpool.Pool
+	shardManager *database.IntShardManager
 }
 
-func NewTransactionRepository(db *pgxpool.Pool) *PostgresTransactionRepository {
-	return &PostgresTransactionRepository{db: db}
+func NewTransactionRepository(shardManager *database.IntShardManager) *PostgresTransactionRepository {
+	return &PostgresTransactionRepository{shardManager: shardManager}
 }
 
 func (r *PostgresTransactionRepository) CreateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error) {
+	shard := r.shardManager.GetShardForUser(tx.UserID)
+
 	query := `
 		INSERT INTO transactions (user_id, amount, category, type)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at;
 	`
 
-	row := r.db.QueryRow(ctx, query, tx.UserID, tx.Amount, tx.Category, tx.Type)
+	row := shard.QueryRow(ctx, query, tx.UserID, tx.Amount, tx.Category, tx.Type)
 	if err := row.Scan(&tx.ID, &tx.CreatedAt); err != nil {
 		return domain.Transaction{}, fmt.Errorf("insert transaction: %w", err)
 	}
@@ -34,7 +36,9 @@ func (r *PostgresTransactionRepository) CreateTransaction(ctx context.Context, t
 	return tx, nil
 }
 
-func (r *PostgresTransactionRepository) ListUserTransactions(ctx context.Context, userID string) ([]domain.Transaction, error) {
+func (r *PostgresTransactionRepository) ListUserTransactions(ctx context.Context, userID int) ([]domain.Transaction, error) {
+	shard := r.shardManager.GetShardForUser(userID)
+
 	query := `
 		SELECT id, user_id, amount, category, type, created_at
 		FROM transactions
@@ -42,7 +46,7 @@ func (r *PostgresTransactionRepository) ListUserTransactions(ctx context.Context
 		ORDER BY created_at ASC;
 	`
 
-	rows, err := r.db.Query(ctx, query, userID)
+	rows, err := shard.Query(ctx, query, userID)
 	if err != nil {
 		return nil, fmt.Errorf("query transactions: %w", err)
 	}
@@ -65,6 +69,8 @@ func (r *PostgresTransactionRepository) ListUserTransactions(ctx context.Context
 }
 
 func (r *PostgresTransactionRepository) UpdateTransaction(ctx context.Context, tx domain.Transaction) (domain.Transaction, error) {
+	shard := r.shardManager.GetShardForUser(tx.UserID)
+
 	query := `
 		UPDATE transactions
 		SET amount = $1,
@@ -74,7 +80,7 @@ func (r *PostgresTransactionRepository) UpdateTransaction(ctx context.Context, t
 		RETURNING created_at;
 	`
 
-	row := r.db.QueryRow(ctx, query, tx.Amount, tx.Category, tx.Type, tx.ID, tx.UserID)
+	row := shard.QueryRow(ctx, query, tx.Amount, tx.Category, tx.Type, tx.ID, tx.UserID)
 	if err := row.Scan(&tx.CreatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Transaction{}, domain.ErrTransactionNotFound
@@ -85,8 +91,10 @@ func (r *PostgresTransactionRepository) UpdateTransaction(ctx context.Context, t
 	return tx, nil
 }
 
-func (r *PostgresTransactionRepository) DeleteTransaction(ctx context.Context, userID string, transactionID int64) error {
-	commandTag, err := r.db.Exec(ctx, `
+func (r *PostgresTransactionRepository) DeleteTransaction(ctx context.Context, userID int, transactionID int64) error {
+	shard := r.shardManager.GetShardForUser(userID)
+
+	commandTag, err := shard.Exec(ctx, `
 		DELETE FROM transactions
 		WHERE id = $1 AND user_id = $2;
 	`, transactionID, userID)

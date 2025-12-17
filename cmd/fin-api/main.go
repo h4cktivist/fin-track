@@ -23,11 +23,11 @@ func main() {
 		log.Fatalf("load config: %v", err)
 	}
 
-	db, err := database.NewPostgresPool(ctx, cfg.Postgres)
+	shardManager, err := database.NewIntShardManager(ctx, cfg.Postgres)
 	if err != nil {
-		log.Fatalf("connect postgres: %v", err)
+		log.Fatalf("create shard manager: %v", err)
 	}
-	defer db.Close()
+	defer shardManager.Close()
 
 	producer, err := kafka.NewProducer(cfg.Kafka.Brokers, cfg.App.KafkaTopic)
 	if err != nil {
@@ -35,7 +35,7 @@ func main() {
 	}
 	defer producer.Close()
 
-	repo := repository.NewTransactionRepository(db)
+	repo := repository.NewTransactionRepository(shardManager)
 	svc := service.NewTransactionService(repo, producer)
 	httpServer := finapihttp.NewServer(svc)
 	grpcServer := finapigrpc.NewServer(svc)

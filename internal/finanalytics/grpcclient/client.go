@@ -23,8 +23,8 @@ func New(addr string) (*Client, error) {
 	return &Client{client: proto.NewTransactionServiceClient(conn)}, nil
 }
 
-func (c *Client) FetchTransactions(ctx context.Context, userID string) ([]domain.Transaction, error) {
-	response, err := c.client.GetUserTransactions(ctx, &proto.UserRequest{UserId: userID})
+func (c *Client) FetchTransactions(ctx context.Context, userID int) ([]domain.Transaction, error) {
+	response, err := c.client.GetUserTransactions(ctx, &proto.UserRequest{UserId: int64(userID)})
 	if err != nil {
 		return nil, fmt.Errorf("grpc get transactions: %w", err)
 	}
@@ -34,7 +34,7 @@ func (c *Client) FetchTransactions(ctx context.Context, userID string) ([]domain
 		parsed, _ := time.Parse(time.RFC3339, tx.GetCreatedAt())
 		transactions = append(transactions, domain.Transaction{
 			ID:        tx.GetId(),
-			UserID:    tx.GetUserId(),
+			UserID:    int(tx.GetUserId()),
 			Amount:    tx.GetAmount(),
 			Category:  tx.GetCategory(),
 			Type:      domain.TransactionType(tx.GetType()),

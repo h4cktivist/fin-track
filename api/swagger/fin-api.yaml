@@ -99,7 +99,7 @@ components:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
     TransactionID:
       name: transactionID
       in: path
