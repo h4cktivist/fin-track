@@ -68,23 +68,6 @@ paths:
                 $ref: '#/components/schemas/Transaction'
         '404':
           $ref: '#/components/responses/NotFound'
-    patch:
-      summary: Partially update transaction
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TransactionInput'
-      responses:
-        '200':
-          description: Updated transaction
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Transaction'
-        '404':
-          $ref: '#/components/responses/NotFound'
     delete:
       summary: Delete transaction
       responses:
