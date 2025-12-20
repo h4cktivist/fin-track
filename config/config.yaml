@@ -17,10 +17,10 @@ postgres:
   shards:
     - name: "shard0"
       conn_url: "postgres://fintrack:fintrack@postgres-shard0:5432/fintrack?sslmode=disable"
-      weight: 1
+      buckets: 2
     - name: "shard1"
       conn_url: "postgres://fintrack:fintrack@postgres-shard1:5432/fintrack?sslmode=disable"
-      weight: 1
+      buckets: 2
 
 redis:
   host: redis

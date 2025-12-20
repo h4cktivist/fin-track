@@ -34,11 +34,22 @@ type Config struct {
 type PostgresShardConfig struct {
 	Name    string `mapstructure:"name"`
 	ConnURL string `mapstructure:"conn_url"`
-	Weight  int    `mapstructure:"weight"`
+	Buckets int    `mapstructure:"buckets"`
 }
 
 type PostgresConfig struct {
 	Shards []PostgresShardConfig `mapstructure:"shards"`
+}
+
+func (p PostgresConfig) GetTotalBuckets() int {
+	total := 0
+	for _, shard := range p.Shards {
+		if shard.Buckets <= 0 {
+			shard.Buckets = 1
+		}
+		total += shard.Buckets
+	}
+	return total
 }
 
 type RedisConfig struct {
