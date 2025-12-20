@@ -7,8 +7,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"fin-track-app/api/proto"
-	"fin-track-app/internal/domain"
+	"fin-analytics/api/proto"
+	"fin-analytics/internal/domain"
 )
 
 type Client struct {

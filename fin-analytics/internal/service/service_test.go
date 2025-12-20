@@ -4,16 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	cachemocks "fin-analytics/internal/cache/mocks"
+	grpcmocks "fin-analytics/internal/grpcclient/mocks"
+	"fin-analytics/internal/service"
 	"testing"
 
 	"github.com/IBM/sarama"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
-	"fin-track-app/internal/domain"
-	cachemocks "fin-track-app/internal/finanalytics/cache/mocks"
-	grpcmocks "fin-track-app/internal/finanalytics/grpcclient/mocks"
-	"fin-track-app/internal/finanalytics/service"
+	"fin-analytics/internal/domain"
 )
 
 type ServiceTestSuite struct {

@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fin-analytics/internal/cache"
+	client "fin-analytics/internal/grpcclient"
+	"fin-analytics/internal/statscalculator"
 	"fmt"
 
 	"github.com/IBM/sarama"
 
-	"fin-track-app/internal/domain"
-	"fin-track-app/internal/finanalytics/cache"
-	client "fin-track-app/internal/finanalytics/grpcclient"
-	"fin-track-app/internal/finanalytics/statscalculator"
+	"fin-analytics/internal/domain"
 )
 
 type Service struct {

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"fin-track-app/internal/domain"
+	"fin-analytics/internal/domain"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"

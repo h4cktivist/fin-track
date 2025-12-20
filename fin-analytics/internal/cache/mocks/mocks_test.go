@@ -6,7 +6,7 @@ package mocks
 
 import (
 	"context"
-	"fin-track-app/internal/domain"
+	"fin-analytics/internal/domain"
 
 	mock "github.com/stretchr/testify/mock"
 )

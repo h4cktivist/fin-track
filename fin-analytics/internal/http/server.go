@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fin-track-app/internal/domain"
+	"fin-analytics/internal/domain"
 	stdhttp "net/http"
 	"strconv"
 	"time"
@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"fin-track-app/internal/swagger"
+	"fin-analytics/internal/swagger"
 )
 
 type AnalyticsService interface {

@@ -19,7 +19,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	cfg, err := config.Load("config/config.yaml")
+	cfg, err := config.Load("config.yaml")
 	if err != nil {
 		log.Fatalf("load config: %v", err)
 	}

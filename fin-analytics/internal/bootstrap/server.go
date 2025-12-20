@@ -2,15 +2,15 @@ package bootstrap
 
 import (
 	"context"
-	"fin-track-app/fin-api/internal/config"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	finanalyticshttp "fin-track-app/internal/finanalytics/http"
-	"fin-track-app/internal/kafka"
+	"fin-analytics/config"
+	finanalyticshttp "fin-analytics/internal/http"
+	"fin-analytics/internal/kafka"
 
 	"github.com/IBM/sarama"
 )

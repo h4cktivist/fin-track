@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"fin-track-app/fin-api/internal/config"
+	"fin-analytics/config"
 	"fmt"
 	"time"
 

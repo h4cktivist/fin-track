@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 
-	"fin-track-app/internal/domain"
+	"fin-analytics/internal/domain"
 )
 
 type StatsCache interface {

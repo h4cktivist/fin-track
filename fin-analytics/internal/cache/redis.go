@@ -8,7 +8,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"fin-track-app/internal/domain"
+	"fin-analytics/internal/domain"
 )
 
 type Cache struct {

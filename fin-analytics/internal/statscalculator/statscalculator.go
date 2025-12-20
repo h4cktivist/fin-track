@@ -3,7 +3,7 @@ package statscalculator
 import (
 	"time"
 
-	"fin-track-app/internal/domain"
+	"fin-analytics/internal/domain"
 )
 
 func CalculateStats(transactions []domain.Transaction) domain.FinanceStats {

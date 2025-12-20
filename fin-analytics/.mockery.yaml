@@ -1,5 +1,5 @@
 packages:
-  fin-track-app/internal/finanalytics/cache:
+  fin-analytics/internal/cache:
     interfaces:
       StatsCache:
         config:
@@ -8,7 +8,7 @@ packages:
           pkgname: "mocks"
           structname: "{{.InterfaceName}}"
 
-  fin-track-app/internal/finanalytics/grpcclient:
+  fin-analytics/internal/grpcclient:
     interfaces:
       TransactionClient:
         config:
@@ -17,16 +17,7 @@ packages:
           pkgname: "mocks"
           structname: "{{.InterfaceName}}"
 
-  fin-track-app/internal/finapi/repository:
-    interfaces:
-      TransactionRepository:
-        config:
-          dir: "{{.InterfaceDir}}/mocks"
-          filename: "mocks.go"
-          pkgname: "mocks"
-          structname: "{{.InterfaceName}}"
-
-  fin-track-app/internal/kafka:
+  fin-analytics/internal/kafka:
     interfaces:
       EventPublisher:
         config:

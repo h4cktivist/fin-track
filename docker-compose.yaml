@@ -106,8 +106,8 @@ services:
 
   fin-api:
     build:
-      context: .
-      dockerfile: Dockerfile.fin-api
+      context: ./fin-api
+      dockerfile: Dockerfile
     depends_on:
       postgres-shard0:
         condition: service_healthy
@@ -133,8 +133,8 @@ services:
 
   fin-analytics:
     build:
-      context: .
-      dockerfile: Dockerfile.fin-analytics
+      context: ./fin-analytics
+      dockerfile: Dockerfile
     depends_on:
       redis:
         condition: service_healthy
