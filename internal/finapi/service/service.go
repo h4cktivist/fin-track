@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"fin-track-app/internal/domain"
 	repo "fin-track-app/internal/finapi/repository"
@@ -28,7 +29,7 @@ func (s *TransactionService) CreateTransaction(ctx context.Context, tx domain.Tr
 	}
 
 	if err := s.publishUserTransactions(ctx, tx.UserID); err != nil {
-		return domain.Transaction{}, err
+		log.Printf("Failed to publish to Kafka (userID: %d): %v", tx.UserID, err)
 	}
 
 	return created, nil
@@ -45,7 +46,7 @@ func (s *TransactionService) UpdateTransaction(ctx context.Context, tx domain.Tr
 	}
 
 	if err := s.publishUserTransactions(ctx, tx.UserID); err != nil {
-		return domain.Transaction{}, err
+		log.Printf("Failed to publish to Kafka (userID: %d): %v", tx.UserID, err)
 	}
 
 	return updated, nil
