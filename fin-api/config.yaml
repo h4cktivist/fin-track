@@ -1,0 +1,24 @@
+app:
+  env: development
+  kafka_topic: user-transactions
+
+fin_api:
+  http_host: 0.0.0.0
+  http_port: 8080
+  grpc_host: 0.0.0.0
+  grpc_port: 9090
+  grpc_target: fin-api:9090
+
+postgres:
+  shards:
+    - name: "shard0"
+      conn_url: "postgres://fintrack:fintrack@postgres-shard0:5432/fintrack?sslmode=disable"
+      buckets: 2
+    - name: "shard1"
+      conn_url: "postgres://fintrack:fintrack@postgres-shard1:5432/fintrack?sslmode=disable"
+      buckets: 2
+
+kafka:
+  brokers:
+    - kafka:9092
+  group_id: fin-analytics-group

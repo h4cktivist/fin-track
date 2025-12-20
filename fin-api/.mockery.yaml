@@ -1,0 +1,18 @@
+packages:
+  fin-api/internal/repository:
+    interfaces:
+      TransactionRepository:
+        config:
+          dir: "{{.InterfaceDir}}/mocks"
+          filename: "mocks.go"
+          pkgname: "mocks"
+          structname: "{{.InterfaceName}}"
+
+  fin-api/internal/kafka:
+    interfaces:
+      EventPublisher:
+        config:
+          dir: "{{.InterfaceDir}}/mocks"
+          filename: "mocks.go"
+          pkgname: "mocks"
+          structname: "{{.InterfaceName}}"
